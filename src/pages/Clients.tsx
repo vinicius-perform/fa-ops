@@ -1,9 +1,10 @@
 import { Topbar, TopbarPrimaryButton } from "@/components/layout/Topbar";
 import { clients, teamMembers } from "@/data/mock";
 import { StatusBadge, PriorityBadge } from "@/components/ui-blocks/Badges";
-import { Search, Calendar, Users as UsersIcon, AlertCircle, MoreHorizontal } from "lucide-react";
+import { Search, Calendar, AlertCircle, MoreHorizontal, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { EmptyState } from "@/components/ui-blocks/EmptyState";
 
 const Clients = () => {
   const [query, setQuery] = useState("");
