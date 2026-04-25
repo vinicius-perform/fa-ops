@@ -1,8 +1,9 @@
 import { Topbar, TopbarPrimaryButton } from "@/components/layout/Topbar";
 import { teamMembers } from "@/data/mock";
-import { Mail, Phone, MoreHorizontal, Search } from "lucide-react";
+import { Mail, Phone, MoreHorizontal, Search, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { EmptyState } from "@/components/ui-blocks/EmptyState";
 
 const Team = () => {
   const [query, setQuery] = useState("");
