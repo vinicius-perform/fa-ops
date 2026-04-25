@@ -14,10 +14,17 @@ const items = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
+import { useAuth } from "@/hooks/useAuth";
+import { LogOut } from "lucide-react";
+
 export const Sidebar = () => {
   const { pathname } = useLocation();
+  const { user, signOut } = useAuth();
+  const initials = user?.user_metadata?.full_name?.split(" ").map((n: string) => n[0]).join("").toUpperCase() || "VM";
+  const fullName = user?.user_metadata?.full_name || "Vinícius Marinho";
+
   return (
-    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+    <aside className="hidden md:flex w-[260px] shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-screen sticky top-0">
       {/* Brand */}
       <div className="px-5 pt-6 pb-5">
         <div className="flex items-center gap-2.5">
@@ -72,15 +79,23 @@ export const Sidebar = () => {
 
       {/* Footer / user */}
       <div className="p-3 border-t border-sidebar-border">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-sidebar-accent transition-colors cursor-pointer">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 grid place-items-center text-white text-[12px] font-semibold">
-            CA
+        <div className="flex items-center justify-between px-2 py-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 grid place-items-center text-white text-[12px] font-semibold shrink-0">
+              {initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-semibold text-sidebar-accent-foreground truncate">{fullName}</p>
+              <p className="text-[11px] text-sidebar-muted truncate">Director · Online</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-sidebar-accent-foreground truncate">Camila Andrade</p>
-            <p className="text-[11px] text-sidebar-muted truncate">Director · Online</p>
-          </div>
-          <div className="h-2 w-2 rounded-full bg-success" />
+          <button 
+            onClick={() => signOut()}
+            className="h-8 w-8 rounded-lg grid place-items-center hover:bg-destructive/10 hover:text-destructive text-sidebar-muted transition-colors"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>

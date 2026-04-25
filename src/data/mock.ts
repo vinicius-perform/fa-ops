@@ -13,6 +13,7 @@ export interface TeamMember {
   phone: string;
   status: MemberStatus;
   assignedClients: number;
+  assignedClientNames: string[]; // List of client names
   avatarColor: string;
   initials: string;
 }

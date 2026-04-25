@@ -1,5 +1,6 @@
 import { Search, Bell, Plus } from "lucide-react";
-import { ReactNode } from "react";
+import React, { ReactNode, forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
 interface TopbarProps {
   title: string;
@@ -38,12 +39,20 @@ export const Topbar = ({ title, subtitle, actions }: TopbarProps) => {
   );
 };
 
-export const TopbarPrimaryButton = ({ children, onClick }: { children: ReactNode; onClick?: () => void }) => (
-  <button
-    onClick={onClick}
-    className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-foreground text-background text-[13px] font-semibold hover:bg-foreground/90 active:scale-[0.98] transition-all shadow-sm"
-  >
-    <Plus className="h-4 w-4" />
-    {children}
-  </button>
+export const TopbarPrimaryButton = forwardRef<HTMLButtonElement, { children: ReactNode; onClick?: () => void } & React.ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ children, className, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={cn(
+        "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-foreground text-background text-[13px] font-semibold hover:bg-foreground/90 active:scale-[0.98] transition-all shadow-sm",
+        className
+      )}
+      {...props}
+    >
+      <Plus className="h-4 w-4" />
+      {children}
+    </button>
+  )
 );
+
+TopbarPrimaryButton.displayName = "TopbarPrimaryButton";

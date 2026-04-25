@@ -1,12 +1,14 @@
 import { Topbar, TopbarPrimaryButton } from "@/components/layout/Topbar";
-import { clients, teamMembers } from "@/data/mock";
 import { StatusBadge, PriorityBadge } from "@/components/ui-blocks/Badges";
 import { Search, Calendar, AlertCircle, MoreHorizontal, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { EmptyState } from "@/components/ui-blocks/EmptyState";
+import { useData } from "@/hooks/useData";
+import { AddClientDialog } from "@/components/forms/AddClientDialog";
 
 const Clients = () => {
+  const { clients, teamMembers } = useData();
   const [query, setQuery] = useState("");
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -18,8 +20,12 @@ const Clients = () => {
     <>
       <Topbar
         title="Clients"
-        subtitle={`${clients.length} active accounts · R$ ${clients.reduce((s, c) => s + c.monthlyFee, 0).toLocaleString()}/mo`}
-        actions={<TopbarPrimaryButton>Add client</TopbarPrimaryButton>}
+        subtitle={`${clients.length} registered accounts`}
+        actions={
+          <AddClientDialog>
+            <TopbarPrimaryButton>Add client</TopbarPrimaryButton>
+          </AddClientDialog>
+        }
       />
 
       <div className="p-6 lg:p-10 space-y-6 animate-in-fade">
@@ -27,25 +33,19 @@ const Clients = () => {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 h-10 px-3 rounded-xl bg-muted/60 border border-transparent focus-within:bg-background focus-within:border-border transition-all flex-1 max-w-md">
             <Search className="h-4 w-4 text-muted-foreground" />
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search clients, niches…" className="flex-1 bg-transparent text-[13px] outline-none" />
-          </div>
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60">
-            {["All", "Active", "Attention", "Growth", "Delayed"].map((t, i) => (
-              <button key={t} className={cn(
-                "px-3 h-8 rounded-lg text-[12px] font-medium transition-all",
-                i === 0 ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-              )}>{t}</button>
-            ))}
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search clients..." className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground" />
           </div>
         </div>
 
         {clients.length === 0 ? (
-          <EmptyState
-            icon={<Briefcase className="h-6 w-6" />}
-            title="No clients yet"
-            description="Add your first client to start managing analyses, tasks and the team responsible for them."
-            actionLabel="Add client"
-          />
+          <AddClientDialog>
+            <EmptyState
+              icon={<Briefcase className="h-6 w-6" />}
+              title="No clients yet"
+              description="Add your first client to start managing analyses, tasks and the team responsible for them."
+              actionLabel="Add client"
+            />
+          </AddClientDialog>
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(c => (
@@ -65,24 +65,6 @@ const Clients = () => {
                 </button>
               </div>
 
-              <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <StatusBadge status={c.status} />
-                <PriorityBadge priority={c.priority} />
-              </div>
-
-              <div className="mt-5 grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-medium">Monthly fee</p>
-                  <p className="text-[15px] font-semibold tabular-nums mt-0.5">R$ {c.monthlyFee.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-medium">Pending</p>
-                  <p className="text-[15px] font-semibold tabular-nums mt-0.5 inline-flex items-center gap-1.5">
-                    {c.pendingActions > 3 && <AlertCircle className="h-3.5 w-3.5 text-warning" />}
-                    {c.pendingActions}
-                  </p>
-                </div>
-              </div>
 
               <div className="mt-5 pt-4 border-t border-border flex items-center justify-between">
                 <div className="flex items-center -space-x-2">

@@ -1,144 +1,117 @@
 import { Topbar, TopbarPrimaryButton } from "@/components/layout/Topbar";
-import { teamMembers } from "@/data/mock";
-import { Mail, Phone, MoreHorizontal, Search, Users } from "lucide-react";
+import { Search, MoreHorizontal, UserPlus, ChevronRight, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { EmptyState } from "@/components/ui-blocks/EmptyState";
+import { useData } from "@/hooks/useData";
+import { AddMemberDialog } from "@/components/forms/AddMemberDialog";
+import { EditMemberDialog } from "@/components/forms/EditMemberDialog";
 
 const Team = () => {
+  const { teamMembers } = useData();
   const [query, setQuery] = useState("");
-  const filtered = teamMembers.filter(m =>
-    m.name.toLowerCase().includes(query.toLowerCase()) ||
-    m.role.toLowerCase().includes(query.toLowerCase()) ||
-    m.department.toLowerCase().includes(query.toLowerCase())
-  );
+  const [selectedRole, setSelectedRole] = useState("all");
+
+  const roles = ["all", ...Array.from(new Set(teamMembers.map(m => m.role)))];
+
+  const filtered = teamMembers.filter(m => {
+    const matchesSearch = 
+      m.name.toLowerCase().includes(query.toLowerCase()) ||
+      m.role.toLowerCase().includes(query.toLowerCase()) ||
+      m.department.toLowerCase().includes(query.toLowerCase());
+    
+    const matchesRole = selectedRole === "all" || m.role === selectedRole;
+    
+    return matchesSearch && matchesRole;
+  });
 
   return (
     <>
       <Topbar
         title="Team"
         subtitle={`${teamMembers.length} members across ${new Set(teamMembers.map(t => t.department)).size} departments`}
-        actions={<TopbarPrimaryButton>Add member</TopbarPrimaryButton>}
+        actions={
+          <AddMemberDialog>
+            <TopbarPrimaryButton>Add member</TopbarPrimaryButton>
+          </AddMemberDialog>
+        }
       />
 
       <div className="p-6 lg:p-10 space-y-6 animate-in-fade">
         {/* Filters */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 h-10 px-3 rounded-xl bg-muted/60 border border-transparent focus-within:bg-background focus-within:border-border transition-all flex-1 max-w-md">
             <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search by name, role, department…"
-              className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
+            <input 
+              value={query} 
+              onChange={e => setQuery(e.target.value)} 
+              placeholder="Search members, roles, depts…" 
+              className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground" 
             />
           </div>
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60">
-            {["All", "Active", "Inactive"].map((t, i) => (
-              <button key={t} className={cn(
-                "px-3 h-8 rounded-lg text-[12px] font-medium transition-all",
-                i === 0 ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-              )}>{t}</button>
+          <select 
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="h-10 px-3 rounded-xl border border-muted bg-muted/60 text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer"
+          >
+            <option value="all">All Roles</option>
+            {roles.filter(r => r !== "all").map(role => (
+              <option key={role} value={role}>{role}</option>
             ))}
-          </div>
+          </select>
         </div>
 
         {teamMembers.length === 0 ? (
-          <EmptyState
-            icon={<Users className="h-6 w-6" />}
-            title="No team members yet"
-            description="Add your first team member to start assigning clients and tracking productivity."
-            actionLabel="Add member"
-          />
+          <AddMemberDialog>
+            <EmptyState
+              icon={<UserPlus className="h-6 w-6" />}
+              title="No team members"
+              description="Add your first team member to start assigning clients and tracking productivity."
+              actionLabel="Add member"
+            />
+          </AddMemberDialog>
         ) : (
-          <>
-            {/* Cards grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filtered.map(m => (
-                <div key={m.id} className="premium-card p-5 group">
-                  <div className="flex items-start justify-between">
-                    <div className={cn("h-12 w-12 rounded-xl grid place-items-center text-white font-semibold", m.avatarColor)}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filtered.map(m => (
+              <EditMemberDialog key={m.id} member={m}>
+                <div className="premium-card bg-white/[0.03] border-white/[0.08] backdrop-blur-2xl p-6 rounded-3xl shadow-xl hover:shadow-2xl hover:border-[#95ec00]/20 hover:bg-white/[0.05] transition-all duration-300 cursor-pointer group animate-in-fade-up">
+                  <div className="flex flex-col items-center">
+                    <div className={cn("h-16 w-16 rounded-2xl text-white text-[20px] font-bold grid place-items-center mb-4 shadow-lg transform group-hover:scale-105 transition-transform duration-300", m.avatarColor)}>
                       {m.initials}
                     </div>
-                    <button className="h-8 w-8 rounded-lg grid place-items-center hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                      <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                    </button>
+                    <h3 className="text-[17px] font-bold text-foreground group-hover:text-[#95ec00] transition-colors">{m.name}</h3>
+                    <p className="text-[12.5px] text-muted-foreground mt-0.5">{m.role}</p>
                   </div>
-                  <div className="mt-4">
-                    <p className="text-[14.5px] font-semibold text-foreground tracking-tight">{m.name}</p>
-                    <p className="text-[12px] text-muted-foreground">{m.role} · {m.department}</p>
-                  </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    <span className={cn(
-                      "inline-flex items-center gap-1.5 text-[10.5px] font-medium px-2 py-0.5 rounded-full border",
-                      m.status === "active" ? "bg-success/10 text-success border-success/20" : "bg-muted text-muted-foreground border-border"
-                    )}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", m.status === "active" ? "bg-success" : "bg-muted-foreground")} />
-                      {m.status === "active" ? "Active" : "Inactive"}
-                    </span>
-                    <span className="text-[10.5px] font-medium text-muted-foreground">
-                      {m.assignedClients} {m.assignedClients === 1 ? "client" : "clients"}
-                    </span>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-border space-y-1.5">
-                    <a href={`mailto:${m.email}`} className="flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors">
-                      <Mail className="h-3.5 w-3.5" /> <span className="truncate">{m.email}</span>
-                    </a>
-                    <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-                      <Phone className="h-3.5 w-3.5" /> {m.phone}
+
+                  <div className="mt-5 pt-4 border-t border-border space-y-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Assigned Clients</p>
+                      <div className="mt-2 flex items-center gap-2.5">
+                        <div className="h-8 w-8 rounded-lg bg-[#95ec00]/10 text-[#95ec00] grid place-items-center shrink-0">
+                          <Briefcase className="h-4 w-4" />
+                        </div>
+                        <p className="text-[13.5px] font-bold text-foreground">
+                          {m.assignedClients || 0} {m.assignedClients === 1 ? 'Client' : 'Clients'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className={cn(
+                        "px-2 h-5 rounded-full text-[10px] font-bold uppercase tracking-tight flex items-center gap-1",
+                        m.status === "active" ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                      )}>
+                        <span className={cn("h-1 w-1 rounded-full", m.status === "active" ? "bg-success" : "bg-muted-foreground")} />
+                        {m.status}
+                      </div>
+                      <div className="h-7 w-7 rounded-lg bg-white/[0.05] grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ChevronRight className="h-4 w-4 text-[#95ec00]" />
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Table view */}
-            <div className="premium-card overflow-hidden">
-              <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-                <h3 className="text-[14px] font-semibold tracking-tight">All members</h3>
-                <span className="text-[12px] text-muted-foreground">{filtered.length} results</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-[13px]">
-                  <thead>
-                    <tr className="text-left text-muted-foreground bg-muted/40">
-                      <th className="px-6 py-3 font-medium text-[11.5px] uppercase tracking-wider">Member</th>
-                      <th className="px-6 py-3 font-medium text-[11.5px] uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-3 font-medium text-[11.5px] uppercase tracking-wider">Department</th>
-                      <th className="px-6 py-3 font-medium text-[11.5px] uppercase tracking-wider">Clients</th>
-                      <th className="px-6 py-3 font-medium text-[11.5px] uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 font-medium text-[11.5px] uppercase tracking-wider">Contact</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map(m => (
-                      <tr key={m.id} className="border-t border-border hover:bg-muted/40 transition-colors">
-                        <td className="px-6 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className={cn("h-8 w-8 rounded-lg grid place-items-center text-white text-[11px] font-semibold", m.avatarColor)}>{m.initials}</div>
-                            <span className="font-medium">{m.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3">{m.role}</td>
-                        <td className="px-6 py-3 text-muted-foreground">{m.department}</td>
-                        <td className="px-6 py-3 tabular-nums">{m.assignedClients}</td>
-                        <td className="px-6 py-3">
-                          <span className={cn(
-                            "inline-flex items-center gap-1.5 text-[10.5px] font-medium px-2 py-0.5 rounded-full border",
-                            m.status === "active" ? "bg-success/10 text-success border-success/20" : "bg-muted text-muted-foreground border-border"
-                          )}>
-                            <span className={cn("h-1.5 w-1.5 rounded-full", m.status === "active" ? "bg-success" : "bg-muted-foreground")} />
-                            {m.status === "active" ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-3 text-muted-foreground">{m.email}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </>
+              </EditMemberDialog>
+            ))}
+          </div>
         )}
       </div>
     </>
