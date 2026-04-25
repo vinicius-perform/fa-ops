@@ -39,7 +39,14 @@ const Clients = () => {
           </div>
         </div>
 
-        {/* Client cards */}
+        {clients.length === 0 ? (
+          <EmptyState
+            icon={<Briefcase className="h-6 w-6" />}
+            title="No clients yet"
+            description="Add your first client to start managing analyses, tasks and the team responsible for them."
+            actionLabel="Add client"
+          />
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(c => (
             <div key={c.id} className="premium-card p-5 group cursor-pointer">
@@ -101,6 +108,7 @@ const Clients = () => {
             </div>
           ))}
         </div>
+        )}
       </div>
     </>
   );
