@@ -27,20 +27,20 @@ const Dashboard = () => {
   return (
     <>
       <Topbar
-        title="Good morning, Camila"
-        subtitle="Here's what's happening across operations today."
+        title="Welcome to FA Ops"
+        subtitle="Your operational command center."
         actions={<TopbarPrimaryButton>New analysis</TopbarPrimaryButton>}
       />
 
       <div className="p-6 lg:p-10 space-y-6 animate-in-fade">
         {/* KPI grid */}
         <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          <KpiCard label="Total Clients" value={clients.length} icon={<Briefcase className="h-5 w-5" />} delta={{ value: "+2", positive: true }} accent="primary" />
-          <KpiCard label="Team Members" value={teamMembers.length} icon={<Users className="h-5 w-5" />} delta={{ value: "+1", positive: true }} accent="info" />
-          <KpiCard label="Pending Tasks" value={pendingTasks} icon={<ListChecks className="h-5 w-5" />} delta={{ value: "-4", positive: true }} accent="warning" />
-          <KpiCard label="Analyses This Week" value={26} icon={<FileSearch className="h-5 w-5" />} delta={{ value: "+18%", positive: true }} accent="success" />
-          <KpiCard label="Delayed Actions" value={delayed} icon={<AlertTriangle className="h-5 w-5" />} delta={{ value: "+1", positive: false }} accent="destructive" />
-          <KpiCard label="Completed / Month" value={completedThisMonth + 78} icon={<CheckCircle2 className="h-5 w-5" />} delta={{ value: "+12%", positive: true }} accent="success" />
+          <KpiCard label="Total Clients" value={clients.length} icon={<Briefcase className="h-5 w-5" />} accent="primary" />
+          <KpiCard label="Team Members" value={teamMembers.length} icon={<Users className="h-5 w-5" />} accent="info" />
+          <KpiCard label="Pending Tasks" value={pendingTasks} icon={<ListChecks className="h-5 w-5" />} accent="warning" />
+          <KpiCard label="Analyses This Week" value={0} icon={<FileSearch className="h-5 w-5" />} accent="success" />
+          <KpiCard label="Delayed Actions" value={delayed} icon={<AlertTriangle className="h-5 w-5" />} accent="destructive" />
+          <KpiCard label="Completed / Month" value={completedThisMonth} icon={<CheckCircle2 className="h-5 w-5" />} accent="success" />
         </section>
 
         {/* Charts row */}
