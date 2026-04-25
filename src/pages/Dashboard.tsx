@@ -12,7 +12,7 @@ const sectorColors = ["#95ec00", "#0f0f0f", "#a3a3a3", "#3b82f6", "#f59e0b", "#1
 const Dashboard = () => {
   const pendingTasks = tasks.filter(t => t.status !== "completed").length;
   const completedThisMonth = tasks.filter(t => t.status === "completed").length;
-  const delayed = clients.filter(c => c.status === "delayed").length + 2;
+  const delayed = clients.filter(c => c.status === "delayed").length;
 
   const activityIcon = (type: string) => {
     switch (type) {
@@ -27,20 +27,20 @@ const Dashboard = () => {
   return (
     <>
       <Topbar
-        title="Good morning, Camila"
-        subtitle="Here's what's happening across operations today."
+        title="Welcome to FA Ops"
+        subtitle="Your operational command center."
         actions={<TopbarPrimaryButton>New analysis</TopbarPrimaryButton>}
       />
 
       <div className="p-6 lg:p-10 space-y-6 animate-in-fade">
         {/* KPI grid */}
         <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          <KpiCard label="Total Clients" value={clients.length} icon={<Briefcase className="h-5 w-5" />} delta={{ value: "+2", positive: true }} accent="primary" />
-          <KpiCard label="Team Members" value={teamMembers.length} icon={<Users className="h-5 w-5" />} delta={{ value: "+1", positive: true }} accent="info" />
-          <KpiCard label="Pending Tasks" value={pendingTasks} icon={<ListChecks className="h-5 w-5" />} delta={{ value: "-4", positive: true }} accent="warning" />
-          <KpiCard label="Analyses This Week" value={26} icon={<FileSearch className="h-5 w-5" />} delta={{ value: "+18%", positive: true }} accent="success" />
-          <KpiCard label="Delayed Actions" value={delayed} icon={<AlertTriangle className="h-5 w-5" />} delta={{ value: "+1", positive: false }} accent="destructive" />
-          <KpiCard label="Completed / Month" value={completedThisMonth + 78} icon={<CheckCircle2 className="h-5 w-5" />} delta={{ value: "+12%", positive: true }} accent="success" />
+          <KpiCard label="Total Clients" value={clients.length} icon={<Briefcase className="h-5 w-5" />} accent="primary" />
+          <KpiCard label="Team Members" value={teamMembers.length} icon={<Users className="h-5 w-5" />} accent="info" />
+          <KpiCard label="Pending Tasks" value={pendingTasks} icon={<ListChecks className="h-5 w-5" />} accent="warning" />
+          <KpiCard label="Analyses This Week" value={0} icon={<FileSearch className="h-5 w-5" />} accent="success" />
+          <KpiCard label="Delayed Actions" value={delayed} icon={<AlertTriangle className="h-5 w-5" />} accent="destructive" />
+          <KpiCard label="Completed / Month" value={completedThisMonth} icon={<CheckCircle2 className="h-5 w-5" />} accent="success" />
         </section>
 
         {/* Charts row */}
@@ -140,7 +140,11 @@ const Dashboard = () => {
               <button className="text-[11.5px] font-semibold text-muted-foreground hover:text-foreground transition-colors">View all</button>
             </div>
             <div className="space-y-1">
-              {activities.map(a => (
+              {activities.length === 0 ? (
+                <div className="text-center py-10 text-[12.5px] text-muted-foreground">
+                  No activity yet
+                </div>
+              ) : activities.map(a => (
                 <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
                   <div className="mt-0.5 h-7 w-7 rounded-lg bg-muted grid place-items-center text-foreground/70 shrink-0">
                     {activityIcon(a.type)}
