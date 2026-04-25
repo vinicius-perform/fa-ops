@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Users, Briefcase, FileSearch, ListChecks, BarChart3, Settings, ChevronRight,
+  LayoutDashboard, Users, Briefcase, FileSearch, ListChecks, BarChart3, Settings, ChevronRight, Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
