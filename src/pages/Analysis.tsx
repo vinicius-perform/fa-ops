@@ -1,9 +1,10 @@
 import { Topbar, TopbarPrimaryButton } from "@/components/layout/Topbar";
 import { analyses, Analysis as AnalysisType, clients } from "@/data/mock";
 import { PriorityBadge } from "@/components/ui-blocks/Badges";
-import { Search, FileDown, Save, ListPlus, Calendar, User, ChevronRight, X } from "lucide-react";
+import { Search, FileDown, Save, ListPlus, Calendar, User, ChevronRight, X, FileSearch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { EmptyState } from "@/components/ui-blocks/EmptyState";
 
 const Analysis = () => {
   const [selected, setSelected] = useState<AnalysisType | null>(null);
@@ -15,7 +16,7 @@ const Analysis = () => {
       <Topbar
         title="Analysis"
         subtitle="Operational deep-dives across your client portfolio"
-        actions={<TopbarPrimaryButton onClick={() => setSelected(analyses[0])}>New analysis</TopbarPrimaryButton>}
+        actions={<TopbarPrimaryButton onClick={() => analyses[0] && setSelected(analyses[0])}>New analysis</TopbarPrimaryButton>}
       />
 
       <div className="p-6 lg:p-10 space-y-6 animate-in-fade">
@@ -40,31 +41,40 @@ const Analysis = () => {
         </div>
 
         {/* Analyses list */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filtered.map(a => (
-            <button
-              key={a.id}
-              onClick={() => setSelected(a)}
-              className="premium-card p-6 text-left group"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">{a.clientName}</span>
-                    <PriorityBadge priority={a.priority} />
+        {analyses.length === 0 ? (
+          <EmptyState
+            icon={<FileSearch className="h-6 w-6" />}
+            title="No analyses yet"
+            description="Create your first analysis to document client situation, problems, opportunities and an action plan."
+            actionLabel="New analysis"
+          />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filtered.map(a => (
+              <button
+                key={a.id}
+                onClick={() => setSelected(a)}
+                className="premium-card p-6 text-left group"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">{a.clientName}</span>
+                      <PriorityBadge priority={a.priority} />
+                    </div>
+                    <h3 className="text-[15px] font-semibold tracking-tight mt-1.5 line-clamp-1">{a.currentSituation}</h3>
+                    <p className="text-[12.5px] text-muted-foreground mt-1.5 line-clamp-2">{a.problems}</p>
                   </div>
-                  <h3 className="text-[15px] font-semibold tracking-tight mt-1.5 line-clamp-1">{a.currentSituation}</h3>
-                  <p className="text-[12.5px] text-muted-foreground mt-1.5 line-clamp-2">{a.problems}</p>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
-              </div>
-              <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-[11.5px] text-muted-foreground">
-                <div className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> {a.responsible}</div>
-                <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Due {new Date(a.deadline).toLocaleDateString()}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+                <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-[11.5px] text-muted-foreground">
+                  <div className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> {a.responsible}</div>
+                  <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Due {new Date(a.deadline).toLocaleDateString()}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Slide-over editor */}
