@@ -31,11 +31,12 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      {/* Search-ish quick action */}
+      {/* Search quick action */}
       <div className="px-3 pb-2">
         <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-accent/60 hover:bg-sidebar-accent text-sidebar-muted hover:text-sidebar-accent-foreground text-[13px] transition-colors">
+          <Search className="h-3.5 w-3.5" />
+          <span>Quick search</span>
           <kbd className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-sidebar/80 border border-sidebar-border">⌘K</kbd>
-          <span className="absolute left-6 pointer-events-none">Quick search</span>
         </button>
       </div>
 
