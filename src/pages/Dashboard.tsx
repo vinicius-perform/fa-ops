@@ -140,7 +140,11 @@ const Dashboard = () => {
               <button className="text-[11.5px] font-semibold text-muted-foreground hover:text-foreground transition-colors">View all</button>
             </div>
             <div className="space-y-1">
-              {activities.map(a => (
+              {activities.length === 0 ? (
+                <div className="text-center py-10 text-[12.5px] text-muted-foreground">
+                  No activity yet
+                </div>
+              ) : activities.map(a => (
                 <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
                   <div className="mt-0.5 h-7 w-7 rounded-lg bg-muted grid place-items-center text-foreground/70 shrink-0">
                     {activityIcon(a.type)}
