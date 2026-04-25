@@ -12,7 +12,7 @@ const sectorColors = ["#95ec00", "#0f0f0f", "#a3a3a3", "#3b82f6", "#f59e0b", "#1
 const Dashboard = () => {
   const pendingTasks = tasks.filter(t => t.status !== "completed").length;
   const completedThisMonth = tasks.filter(t => t.status === "completed").length;
-  const delayed = clients.filter(c => c.status === "delayed").length + 2;
+  const delayed = clients.filter(c => c.status === "delayed").length;
 
   const activityIcon = (type: string) => {
     switch (type) {
