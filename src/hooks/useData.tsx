@@ -108,10 +108,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const mappedAnalyses = analysesRes.data.map(a => ({
           ...a,
           clientId: a.client_id,
-          clientName: a.client_name,
-          currentSituation: a.current_situation,
-          actionPlan: a.action_plan,
-          createdAt: a.created_at
+          clientName: a.client_name || "N/A",
+          currentSituation: a.current_situation || "",
+          problems: a.problems || "",
+          opportunities: a.opportunities || "",
+          actionPlan: a.action_plan || "",
+          responsible: a.responsible || "Team",
+          deadline: a.deadline || "",
+          createdAt: a.created_at,
+          notes: a.notes || ""
         }));
         setAnalyses(mappedAnalyses);
       }
@@ -245,15 +250,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data, error } = await supabase.from("analyses").insert([dbAnalysis]).select();
     if (error) {
-      toast.error(`Error: ${error.message}`);
-      console.error(error);
+      toast.error(`Error saving analysis: ${error.message}`);
+      console.error("Save Analysis Error:", error);
     } else if (data) {
       const mapped = {
         ...data[0],
         clientId: data[0].client_id,
-        clientName: data[0].client_name,
-        currentSituation: data[0].current_situation,
-        actionPlan: data[0].action_plan
+        clientName: data[0].client_name || "N/A",
+        currentSituation: data[0].current_situation || "",
+        problems: data[0].problems || "",
+        opportunities: data[0].opportunities || "",
+        actionPlan: data[0].action_plan || "",
+        responsible: data[0].responsible || "Team",
+        deadline: data[0].deadline || "",
+        createdAt: data[0].created_at,
+        notes: data[0].notes || ""
       };
       setAnalyses(prev => [mapped, ...prev]);
       toast.success("Analysis created successfully");
