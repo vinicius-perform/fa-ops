@@ -78,7 +78,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const [membersRes, clientsRes, analysesRes, tasksRes] = await Promise.all([
         supabase.from("team_members").select("*").order("name"),
         supabase.from("clients").select("*").order("name"),
-        supabase.from("analyses").select("*").order("created_at", { ascending: false }),
+        supabase.from("analyses").select("*").order("id", { ascending: false }), // Sort by ID as fallback
         supabase.from("tasks").select("*").order("due_date", { ascending: true })
       ]);
 
@@ -105,17 +105,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (analysesRes.data) {
+        console.log("Fetched analyses raw data:", analysesRes.data);
         const mappedAnalyses = analysesRes.data.map(a => ({
           ...a,
-          clientId: a.client_id,
-          clientName: a.client_name || "N/A",
-          currentSituation: a.current_situation || "",
+          clientId: a.client_id || a.clientid || "",
+          clientName: a.client_name || a.clientname || "N/A",
+          currentSituation: a.current_situation || a.currentsituation || "",
           problems: a.problems || "",
           opportunities: a.opportunities || "",
-          actionPlan: a.action_plan || "",
+          actionPlan: a.action_plan || a.actionplan || "",
           responsible: a.responsible || "Team",
           deadline: a.deadline || "",
-          createdAt: a.created_at,
+          createdAt: a.created_at || a.createdat,
           notes: a.notes || ""
         }));
         setAnalyses(mappedAnalyses);
@@ -255,15 +256,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else if (data) {
       const mapped = {
         ...data[0],
-        clientId: data[0].client_id,
-        clientName: data[0].client_name || "N/A",
-        currentSituation: data[0].current_situation || "",
+        clientId: data[0].client_id || data[0].clientid || "",
+        clientName: data[0].client_name || data[0].clientname || "N/A",
+        currentSituation: data[0].current_situation || data[0].currentsituation || "",
         problems: data[0].problems || "",
         opportunities: data[0].opportunities || "",
-        actionPlan: data[0].action_plan || "",
+        actionPlan: data[0].action_plan || data[0].actionplan || "",
         responsible: data[0].responsible || "Team",
         deadline: data[0].deadline || "",
-        createdAt: data[0].created_at,
+        createdAt: data[0].created_at || data[0].createdat,
         notes: data[0].notes || ""
       };
       setAnalyses(prev => [mapped, ...prev]);
