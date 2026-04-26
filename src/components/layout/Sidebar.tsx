@@ -10,8 +10,6 @@ const items = [
   { to: "/clients", label: "Clients", icon: Briefcase },
   { to: "/analysis", label: "Analysis", icon: FileSearch },
   { to: "/tasks", label: "Tasks", icon: ListChecks },
-  { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 import { useAuth } from "@/hooks/useAuth";

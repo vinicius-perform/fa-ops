@@ -21,6 +21,9 @@ interface DataContextType {
   deleteAnalysis: (id: string) => Promise<void>;
   addTask: (task: Omit<Task, "id" | "status">) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
+  deleteClient: (id: string) => Promise<void>;
   updateMember: (id: string, updates: Partial<TeamMember>) => Promise<void>;
 }
 
@@ -38,6 +41,35 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     fetchData();
+
+    // Set up Realtime subscriptions for multi-device sync
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'team_members' },
+        () => fetchData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'clients' },
+        () => fetchData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'analyses' },
+        () => fetchData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        () => fetchData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchData = async () => {
@@ -317,6 +349,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const deleteTask = async (id: string) => {
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+    if (error) {
+      toast.error(`Error deleting task: ${error.message}`);
+    } else {
+      setTasks(prev => prev.filter(t => t.id !== id));
+      toast.success("Task removed successfully");
+    }
+  };
+
   const updateMember = async (id: string, updates: Partial<TeamMember>) => {
     const dbUpdates: any = { ...updates };
     
@@ -355,6 +397,57 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateClient = async (id: string, updates: Partial<Client>) => {
+    const dbUpdates: any = { ...updates };
+    
+    if (updates.entryDate) {
+      dbUpdates.entry_date = updates.entryDate;
+      delete dbUpdates.entryDate;
+    }
+    if (updates.pendingActions !== undefined) {
+      dbUpdates.pending_actions = updates.pendingActions;
+      delete dbUpdates.pendingActions;
+    }
+    if (updates.lastAnalysis) {
+      dbUpdates.last_analysis = updates.lastAnalysis;
+      delete dbUpdates.lastAnalysis;
+    }
+    if (updates.logoColor) {
+      dbUpdates.logo_color = updates.logoColor;
+      delete dbUpdates.logoColor;
+    }
+    if (updates.monthlyFee !== undefined) {
+      dbUpdates.monthly_fee = updates.monthlyFee;
+      delete dbUpdates.monthlyFee;
+    }
+
+    const { data, error } = await supabase.from("clients").update(dbUpdates).eq("id", id).select();
+    if (error) {
+      toast.error(`Error updating client: ${error.message}`);
+    } else if (data) {
+      const mapped = {
+        ...data[0],
+        entryDate: data[0].entry_date,
+        monthlyFee: data[0].monthly_fee,
+        pendingActions: data[0].pending_actions,
+        lastAnalysis: data[0].last_analysis,
+        logoColor: data[0].logo_color
+      };
+      setClients(prev => prev.map(c => c.id === id ? { ...c, ...mapped } : c));
+      toast.success("Client updated successfully");
+    }
+  };
+
+  const deleteClient = async (id: string) => {
+    const { error } = await supabase.from("clients").delete().eq("id", id);
+    if (error) {
+      toast.error(`Error deleting client: ${error.message}`);
+    } else {
+      setClients(prev => prev.filter(c => c.id !== id));
+      toast.success("Client removed successfully");
+    }
+  };
+
   return (
     <DataContext.Provider value={{ 
       teamMembers, 
@@ -369,7 +462,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateAnalysis,
       deleteAnalysis,
       addTask,
-      updateTask
+      updateTask,
+      deleteTask,
+      updateClient,
+      deleteClient,
+      updateMember
     }}>
       {children}
     </DataContext.Provider>

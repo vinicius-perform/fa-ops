@@ -1,5 +1,5 @@
 import { Topbar, TopbarPrimaryButton } from "@/components/layout/Topbar";
-import { Search, Calendar, User, Target, CheckCircle2, ListTodo } from "lucide-react";
+import { Search, Calendar, User, Target, CheckCircle2, ListTodo, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { EmptyState } from "@/components/ui-blocks/EmptyState";
@@ -7,7 +7,7 @@ import { useData } from "@/hooks/useData";
 import { NewTaskDialog } from "@/components/forms/NewTaskDialog";
 
 const Tasks = () => {
-  const { tasks, updateTask } = useData();
+  const { tasks, updateTask, deleteTask } = useData();
   const [query, setQuery] = useState("");
   
   const sortedAndFiltered = useMemo(() => {
@@ -131,8 +131,8 @@ const Tasks = () => {
                     </div>
                   </div>
 
-                  {/* Execution Date */}
-                  <div className="flex-shrink-0">
+                  {/* Execution Date & Actions */}
+                  <div className="flex items-center gap-3">
                     <div className={cn(
                       "px-4 py-2.5 rounded-2xl flex items-center gap-3 border border-black/5 transition-colors",
                       t.status === "completed" ? "bg-muted/20" : "bg-[#f5f5f7]"
@@ -142,6 +142,18 @@ const Tasks = () => {
                         {new Date(t.dueDate).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit" })}
                       </span>
                     </div>
+
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+                          deleteTask(t.id);
+                        }
+                      }}
+                      className="p-2.5 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 className="h-4.5 w-4.5" />
+                    </button>
                   </div>
                 </div>
               </div>
