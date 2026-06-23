@@ -88,7 +88,7 @@ const Login = () => {
 
             <Button 
               type="submit" 
-              className="w-full h-12 rounded-xl bg-[#95ec00] text-[#090909] hover:bg-[#a6ff00] font-bold text-[15px] transition-all mt-4 group shadow-[0_10px_20px_rgba(149,236,0,0.15)] active:scale-[0.98]" 
+              className="w-full h-12 rounded-xl bg-blue-500 text-white hover:bg-blue-600 font-bold text-[15px] transition-all mt-4 group shadow-[0_10px_20px_rgba(59,130,246,0.25)] active:scale-[0.98]" 
               disabled={loading}
             >
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
