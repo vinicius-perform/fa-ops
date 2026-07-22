@@ -1,119 +1,106 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
-const Login = () => {
+export default function Login() {
+  const { user, loading, signIn, signUp } = useAuth();
+  const [tab, setTab] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  if (loading) return null;
+  if (user) return <Navigate to="/" replace />;
+
+  async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    setSubmitting(true);
+    const { error } = await signIn(email, password);
+    setSubmitting(false);
+    if (error) toast.error("Não foi possível entrar", { description: error });
+  }
 
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Welcome back!");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    const { error } = await signUp(email, password, fullName);
+    setSubmitting(false);
+    if (error) toast.error("Erro no cadastro", { description: error });
+    else toast.success("Conta criada", { description: "Verifique seu e-mail se a confirmação estiver ativa." });
+  }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#090909] relative overflow-hidden text-white font-sans">
-      {/* Dynamic Background */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#95ec00]/10 blur-[120px] rounded-full animate-pulse" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 blur-[120px] rounded-full" />
-      
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-
-      <div className="w-full max-w-[420px] p-8 md:p-10 relative z-10 animate-in-fade">
-        <div className="flex flex-col items-center mb-12">
-          <h1 className="text-[32px] font-bold tracking-tight text-center text-[#95ec00]">FA Ops</h1>
-          <p className="text-[14px] text-white/50 mt-2 text-center font-medium">Operational Control & Client Execution</p>
-        </div>
-
-        <div className="premium-card bg-white/[0.03] border-white/[0.08] backdrop-blur-2xl p-8 rounded-3xl shadow-2xl">
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2.5">
-              <Label htmlFor="email" className="text-[13px] font-semibold text-white/70 ml-1">Email address</Label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-3.5 h-4 w-4 text-white/30 group-focus-within:text-[#95ec00] transition-colors" />
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  className="pl-11 h-12 rounded-xl bg-white/[0.05] border-transparent focus:bg-white/[0.08] focus:border-[#95ec00]/30 text-white placeholder:text-white/20 transition-all"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between ml-1">
-                <Label htmlFor="password" shifting className="text-[13px] font-semibold text-white/70">Password</Label>
-                <button type="button" className="text-[12px] font-semibold text-[#95ec00] hover:opacity-80 transition-opacity">Forgot?</button>
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-3.5 h-4 w-4 text-white/30 group-focus-within:text-[#95ec00] transition-colors" />
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••" 
-                  className="pl-11 h-12 rounded-xl bg-white/[0.05] border-transparent focus:bg-white/[0.08] focus:border-[#95ec00]/30 text-white placeholder:text-white/20 transition-all"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full h-12 rounded-xl bg-[#95ec00] text-black hover:bg-[#95ec00]/90 font-bold text-[15px] transition-all mt-4 group shadow-[0_10px_20px_rgba(149,236,0,0.25)] active:scale-[0.98]"
-              disabled={loading}
-            >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-                <>
-                  Enter Dashboard <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </Button>
-          </form>
-        </div>
-
-        <div className="mt-10 flex flex-col items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="h-[1px] w-8 bg-white/10" />
-            <span className="text-[11px] font-bold uppercase tracking-widest text-white/30">Secure Access</span>
-            <span className="h-[1px] w-8 bg-white/10" />
+    <div className="min-h-screen w-full bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-[400px]">
+        <div className="flex items-center gap-3 mb-8 justify-center">
+          <div className="h-10 w-10 rounded-xl bg-primary grid place-items-center">
+            <span className="text-primary-foreground font-bold font-mono">FA</span>
           </div>
-          <p className="text-center text-[12px] text-white/40 leading-relaxed max-w-[280px]">
-            This system is for authorized personnel only. 
-            All activity is monitored and recorded.
-          </p>
+          <div>
+            <h1 className="text-[18px] font-semibold text-foreground tracking-tight leading-tight">FA Ads Intelligence</h1>
+            <p className="text-[11.5px] text-muted-foreground leading-tight">Gestão de tráfego pago</p>
+          </div>
         </div>
+
+        <div className="surface-card p-6">
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabsList className="grid grid-cols-2 mb-5">
+              <TabsTrigger value="signin">Entrar</TabsTrigger>
+              <TabsTrigger value="signup">Criar conta</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="signin">
+              <form onSubmit={handleSignIn} className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@empresa.com" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password">Senha</Label>
+                  <Input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="signup">
+              <form onSubmit={handleSignUp} className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Nome completo</Label>
+                  <Input id="name" required value={fullName} onChange={e => setFullName(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="email2">E-mail</Label>
+                  <Input id="email2" type="email" required value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password2">Senha</Label>
+                  <Input id="password2" type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Criar conta"}
+                </Button>
+                <p className="text-[11px] text-muted-foreground text-center">
+                  O primeiro usuário cadastrado torna-se administrador automaticamente.
+                </p>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <p className="text-[11px] text-muted-foreground text-center mt-6">
+          FA Ads Intelligence · Ambiente seguro
+        </p>
       </div>
     </div>
   );
-};
-
-export default Login;
+}
